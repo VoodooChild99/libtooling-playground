@@ -25,14 +25,32 @@ static void InitializeLLVM() {
   llvm::InitializeAllDisassemblers();
 }
 
+static llvm::Expected<CommonOptionsParser>
+createOptionParser(int argc, const char **argv) {
+  std::vector<std::string> ArgVec;
+  for (int i = 0; i < argc; ++i) {
+    ArgVec.push_back(argv[i]);
+  }
+  ArgVec.push_back("--extra-arg");
+  ArgVec.push_back("-I");
+  ArgVec.push_back("--extra-arg");
+  ArgVec.push_back(LIBTOOLING_INCLUDE_PATH);
+
+  std::vector<const char *> Argv;
+  for (const auto &Arg : ArgVec) {
+    Argv.push_back(Arg.c_str());
+  }
+  int Argc = Argv.size();
+
+  return CommonOptionsParser::create(Argc, Argv.data(), ToolCategory);
+}
+
 } // namespace
 
 int main(int argc, const char **argv) {
   InitializeLLVM();
 
-  auto OptionsParser =
-      CommonOptionsParser::create(argc, argv, ToolCategory);
-
+  auto OptionsParser = createOptionParser(argc, argv);
   if (auto E = OptionsParser.takeError()) {
     llvm::errs() << "Problem creating CommonOptionsParser: "
                  << llvm::toString(std::move(E)) << "\n";

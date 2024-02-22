@@ -39,6 +39,16 @@ if(llvm_config_success AND NOT llvm_config_success EQUAL 0)
 endif()
 
 execute_process(
+  COMMAND bash -c "${LLVM_CONFIG} --libdir 2>/dev/null"
+  RESULT_VARIABLE llvm_config_success
+  OUTPUT_VARIABLE llvm_libdir
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(llvm_config_success AND NOT llvm_config_success EQUAL 0)
+  message(FATAL_ERROR "Failed to get LLVM library directory")
+endif()
+
+execute_process(
   COMMAND bash -c "${LLVM_CONFIG} --bindir 2>/dev/null"
   RESULT_VARIABLE llvm_config_success
   OUTPUT_VARIABLE llvm_bindir
@@ -115,15 +125,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 # Doing this at the end so that all definitions and link/include paths are
 # available for the sub-projects.
 #===============================================================================
+add_compile_definitions(LIBTOOLING_INCLUDE_PATH="${llvm_libdir}/clang/${llvm_version}/include")
+
 add_subdirectory(src)
-
-# uninstall target
-if(NOT TARGET uninstall)
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-
-  add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()

@@ -8,11 +8,6 @@ set(my-toy-tool_src
   main.cpp
 )
 
-configure_file(
-    "${CMAKE_SOURCE_DIR}/cmake/cmake_create_symlink.cmake.in"
-    "${CMAKE_BINARY_DIR}/cmake_create_symlink.cmake"
-    IMMEDIATE @ONLY)
-
 # CONFIGURE THE TOOL
 # ==============================
 foreach( tool ${TOOLS_LIST} )
@@ -45,14 +40,5 @@ foreach( tool ${TOOLS_LIST} )
     ${tool}
     "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>"
     clangTooling
-  )
-
-  install(
-    TARGETS ${tool}
-    DESTINATION ${llvm_bindir}
-  )
-
-  install(
-    CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DSYMLINK_OLD=\"${llvm_bindir}/${tool}\" -DSYMLINK_NEW=${tool} -P ${CMAKE_BINARY_DIR}/cmake_create_symlink.cmake)"
   )
 endforeach()
