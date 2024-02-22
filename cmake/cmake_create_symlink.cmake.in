@@ -1,0 +1,18 @@
+if(NOT EXISTS "@PROJECT_BINARY_DIR@/scripts")
+  message(STATUS "Creating directory: @PROJECT_BINARY_DIR@/scripts")
+  exec_program(
+    "${CMAKE_COMMAND}" ARGS "-E make_directory \"@PROJECT_BINARY_DIR@/scripts\""
+    RETURN_VALUE create_retval
+  )
+  if(NOT "${create_retval}" STREQUAL 0)
+    message(FATAL_ERROR "Problem when making directory @PROJECT_BINARY_DIR@/scripts")
+  endif()
+endif()
+
+exec_program(
+  "${CMAKE_COMMAND}" ARGS "-E create_symlink \"${SYMLINK_OLD}\" \"@PROJECT_BINARY_DIR@/scripts/${SYMLINK_NEW}\""
+  RETURN_VALUE symlink_retval
+)
+if(NOT "${symlink_retval}" STREQUAL 0)
+  message(FATAL_ERROR "Problem when creating symlink @PROJECT_BINARY_DIR@/scripts/${SYMLINK_NEW}->${SYMLINK_OLD}")
+endif()
